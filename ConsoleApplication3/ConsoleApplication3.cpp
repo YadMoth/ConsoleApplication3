@@ -1,20 +1,63 @@
-﻿// ConsoleApplication3.cpp : Этот файл содержит функцию "main". Здесь начинается и заканчивается выполнение программы.
-//
-
 #include <iostream>
+#include <vector>
+#include <fstream>
+#include <string>
 
-int main()
-{
-    std::cout << "Hello World!\n";
-}
+class Contact {
+public:
+    std::string name;
+    std::string phone;
+    std::string email;
 
-// Запуск программы: CTRL+F5 или меню "Отладка" > "Запуск без отладки"
-// Отладка программы: F5 или меню "Отладка" > "Запустить отладку"
+    Contact(const std::string& n, const std::string& p, const std::string& e)
+        : name(n), phone(p), email(e) {}
 
-// Советы по началу работы 
-//   1. В окне обозревателя решений можно добавлять файлы и управлять ими.
-//   2. В окне Team Explorer можно подключиться к системе управления версиями.
-//   3. В окне "Выходные данные" можно просматривать выходные данные сборки и другие сообщения.
-//   4. В окне "Список ошибок" можно просматривать ошибки.
-//   5. Последовательно выберите пункты меню "Проект" > "Добавить новый элемент", чтобы создать файлы кода, или "Проект" > "Добавить существующий элемент", чтобы добавить в проект существующие файлы кода.
-//   6. Чтобы снова открыть этот проект позже, выберите пункты меню "Файл" > "Открыть" > "Проект" и выберите SLN-файл.
+    void display() const {
+        std::cout << "Name: " << name << ", Phone: " << phone << ", Email: " << email << std::endl;
+    }
+};
+
+class ContactManager {
+private:
+    std::vector<Contact> contacts;
+
+public:
+    void addContact(const std::string& name, const std::string& phone, const std::string& email) {
+        contacts.emplace_back(name, phone, email);
+    }
+
+    void deleteContact(const std::string& name) {
+        contacts.erase(std::remove_if(contacts.begin(), contacts.end(),
+                                       [&name](const Contact& c) { return c.name == name; }), contacts.end());
+    }
+
+    Contact* findContact(const std::string& name) {
+        for (auto& contact : contacts) {
+            if (contact.name == name) {
+                return &contact;
+            }
+        }
+        return nullptr;
+    }
+
+    void changeContact(const std::string& name, const std::string& newPhone, const std::string& newEmail) {
+        Contact* contact = findContact(name);
+        if (contact) {
+            contact->phone = newPhone;
+            contact->email = newEmail;
+        }
+    }
+
+    void saveToFile(const std::string& filename) {
+        std::ofstream file(filename);
+        for (const auto& contact : contacts) {
+            file << contact.name << "," << contact.phone << "," << contact.email << std::endl;
+        }
+    }
+
+    void displayContacts() const {
+        for (const auto& contact : contacts) {
+            contact.display();
+        }
+    }
+};
